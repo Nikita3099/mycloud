@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyd
+*.pyo
+*.db
+*.sqlite3
+db.sqlite3
+
+# Virtual environments
+.venv/
+venv/
+mycloud/venv/
+
+# Django media/uploads
+media/
+
+# Frontend artifacts
+node_modules/
+dist/
+build/
+.cache/
+
+# Env files
+.env
+.env.*
+
