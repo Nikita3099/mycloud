@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.conf import settings
+from django.conf.urls.static import static
 from django.http import HttpResponse, JsonResponse
 from django.urls import path, re_path
 from django.views.decorators.csrf import ensure_csrf_cookie
@@ -82,3 +83,9 @@ urlpatterns = [
     path('api/files/<int:file_id>/link/', FileLinkView.as_view()),
     path('api/files/public/<uuid:link>/download/', FilePublicDownloadView.as_view()),
 ]
+
+
+if settings.DEBUG:
+    from django.contrib.staticfiles.urls import staticfiles_urlpatterns
+    urlpatterns += staticfiles_urlpatterns()
+

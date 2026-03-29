@@ -11,6 +11,10 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
 import os
+
+from dotenv import load_dotenv
+load_dotenv()
+
 from pathlib import Path
 
 from .system_config import (
@@ -28,15 +32,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get(
-    "DJANGO_SECRET_KEY",
-    "django-insecure-gl+(s-(8r1h#yr=2z+)(+vfu*4v6$2))@p_a3csiw4$ou@8k4!",
-)
+
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'django-insecure-change-me')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get("DJANGO_DEBUG", "1") == "1"
+DEBUG = os.environ.get("DJANGO_DEBUG", "0") == "1"
 
-ALLOWED_HOSTS = get_allowed_hosts()
+ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
 
 
 # Application definition
@@ -88,7 +90,12 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 DATABASES = {
     'default': {
-        **get_database_settings(),
+	'ENGINE': 'django.db.backends.postgresql',
+	'NAME': 'mycloud_nick',
+	'HOST': '127.0.0.1',
+	'PORT': '5432',
+	'USER': 'nick',
+	'PASSWORD': 'Nick56405',
     }
 }
 
@@ -153,7 +160,8 @@ REST_FRAMEWORK = {
 }
 
 
-CSRF_TRUSTED_ORIGINS = get_csrf_trusted_origins()
+CSRF_TRUSTED_ORIGINS = os.getenv('CSRF_TRUSTED_ORIGINS', '').split(',')
+
 SESSION_COOKIE_SAMESITE = os.environ.get("SESSION_COOKIE_SAMESITE", "Lax")
 CSRF_COOKIE_HTTPONLY = False
 
