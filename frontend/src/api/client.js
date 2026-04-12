@@ -22,26 +22,35 @@ export async function apiRequest(path, { method = "GET", body, isFormData = fals
     headers["Content-Type"] = "application/json";
   }
 
-  const res = await fetch(url, {
-    method: upperMethod,
-    credentials: "include",
-    headers,
-    body: isFormData ? body : body === undefined ? undefined : JSON.stringify(body),
-  });
+  try {
+    const res = await fetch(url, {
+      method: upperMethod,
+      credentials: "include",
+      headers,
+      body: isFormData ? body : body === undefined ? undefined : JSON.stringify(body),
+    });
 
-  const contentType = res.headers.get("content-type") || "";
-  const isJson = contentType.includes("application/json");
-  const data = isJson ? await res.json().catch(() => null) : null;
+    const contentType = res.headers.get("content-type") || "";
+    const isJson = contentType.includes("application/json");
+    const data = isJson ? await res.json().catch(() => null) : null;
 
-  if (!res.ok) {
-    const message = data?.error || data?.detail || `HTTP ${res.status}`;
-    const err = new Error(message);
-    err.status = res.status;
-    err.data = data;
-    throw err;
+    if (!res.ok) {
+      const message = data?.error || data?.detail || `HTTP ${res.status}`;
+      const err = new Error(message);
+      err.status = res.status;
+      err.data = data;
+      throw err;
+    }
+
+    return data;
+  } catch (error) {
+    if (error instanceof Error && error.status) {
+      // Already handled HTTP error
+      throw error;
+    }
+    // Network or other error
+    throw new Error("Network error or server unavailable");
   }
-
-  return data;
 }
 
 export const api = {

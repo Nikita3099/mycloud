@@ -1,11 +1,13 @@
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
 import logging
 
 from django.contrib.auth import login, logout
 from django.shortcuts import get_object_or_404
+from rest_framework import status
 from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
+from config.pagination import StandardPagination
 
 from .models import User
 from .serializers import (
@@ -25,7 +27,7 @@ class UsersListView(APIView):
         if not request.user.is_admin:
             return Response({'error': 'forbidden'}, status=403)
 
-        users = User.objects.all()
+        users = User.objects.all().order_by("id")
         serializer = UserSerializer(users, many=True)
         return Response(serializer.data)
 

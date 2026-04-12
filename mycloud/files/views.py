@@ -14,8 +14,8 @@ from .serializers import (
     FileListSerializer,
     FileUploadResponseSerializer,
     FileUpdateSerializer,
+    FileUploadSerializer,
 )
-
 logger = logging.getLogger("mycloud")
 
 
@@ -51,30 +51,33 @@ class UploadFileView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        file_obj = request.FILES.get("file")
-        if not file_obj:
-            return Response({"error": "file is required"}, status=status.HTTP_400_BAD_REQUEST)
+        serializer = FileUploadSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        comment = request.data.get("comment", "")
-        logger.debug(
-            "UploadFileView.post: user_id=%s file_name=%s comment_present=%s",
-            request.user.id,
-            getattr(file_obj, "name", None),
-            bool(comment),
-        )
-        new_file = File.objects.create(
-            user=request.user,
-            original_name=file_obj.name,
-            file=file_obj,
-            size=getattr(file_obj, "size", 0),
-            comment=comment,
-        )
-        logger.info("File uploaded: user_id=%s file_id=%s name=%s", request.user.id, new_file.id, new_file.original_name)
+        file_obj = serializer.validated_data['file']
+        comment = serializer.validated_data.get('comment', '')
 
-        serializer = FileUploadResponseSerializer(new_file)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        if file_obj.size > 10 * 1024 * 1024:
+            return Response({"error": "file too large"}, status=status.HTTP_400_BAD_REQUEST)
 
+        allowed_types = ["image/jpeg", "image/png", "application/pdf"]
+        if file_obj.content_type not in allowed_types:
+            return Response({"error": "invalid file type"}, status=status.HTTP_400_BAD_REQUEST)
 
+        try:
+            new_file = File.objects.create(
+                user=request.user,
+                original_name=file_obj.name,
+                file=file_obj,
+                size=file_obj.size,
+                comment=comment,
+            )
+        except Exception as e:
+            logger.error(f"Upload failed: {e}")
+            return Response({"error": "upload failed"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        return Response(FileUploadResponseSerializer(new_file).data, status=status.HTTP_201_CREATED)
 class FileManageView(APIView):
     permission_classes = [IsAuthenticated]
 

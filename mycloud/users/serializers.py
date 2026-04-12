@@ -1,8 +1,9 @@
-
 import re
 
 from django.contrib.auth import get_user_model
+from django.core.exceptions import ValidationError as DjangoValidationError
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError as DRFValidationError
 
 from .models import User
 
@@ -90,6 +91,10 @@ class RegisterSerializer(serializers.ModelSerializer):
             full_name=validated_data["full_name"],
         )
         user.set_password(validated_data["password"])
+        try:
+            user.full_clean()
+        except DjangoValidationError as e:
+            raise DRFValidationError(detail=e.message_dict) from e
         user.save()
         return user
 

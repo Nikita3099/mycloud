@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { fetchUsers, deleteUser, updateUserAdmin } from "../store/usersSlice";
+import { fetchUsers, deleteUser, updateUserAdmin, clearError } from "../store/usersSlice";
 
 export default function AdminPage() {
   const dispatch = useDispatch();
@@ -30,6 +30,12 @@ export default function AdminPage() {
       <div className="panel">
         <h2 className="panel-title">Администрирование</h2>
         {usersState.status === "loading" && <div>Загрузка...</div>}
+        {usersState.error && (
+          <div style={{ color: "red", marginBottom: 16 }}>
+            Ошибка: {usersState.error}
+            <button onClick={() => dispatch(clearError())} style={{ marginLeft: 8 }}>Закрыть</button>
+          </div>
+        )}
 
         <table className="cloud-table">
         <thead>
@@ -53,8 +59,10 @@ export default function AdminPage() {
                 <input
                   type="checkbox"
                   checked={!!u.is_admin}
+                  disabled={usersState.updating}
                   onChange={(e) => dispatch(updateUserAdmin({ userId: u.id, is_admin: e.target.checked }))}
                 />
+                {usersState.updating && <span>Обновление...</span>}
               </td>
               <td>{u.files_count}</td>
               <td>{u.files_total_size} B</td>
@@ -70,12 +78,13 @@ export default function AdminPage() {
                   <button
                     type="button"
                     className="btn btn-danger"
+                    disabled={usersState.deleting}
                     onClick={() => {
                       const ok = window.confirm(`Удалить пользователя ${u.username}?`);
                       if (ok) dispatch(deleteUser(u.id));
                     }}
                   >
-                    Удалить
+                    {usersState.deleting ? "Удаление..." : "Удалить"}
                   </button>
                 </div>
               </td>

@@ -1,29 +1,63 @@
 # Python
 __pycache__/
 *.py[cod]
-*.pyd
-*.pyo
-*.db
-*.sqlite3
-db.sqlite3
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+pip-log.txt
+pip-delete-this-directory.txt
 
 # Virtual environments
-.venv/
-venv/
-mycloud/venv/
-
-# Django media/uploads
-media/
-
-# Frontend artifacts
-node_modules/
-dist/
-build/
-.cache/
-
-# Env files
-.env
-.env.*
-
 env/
-mycloud/staticfiles/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Django
+*.log
+local_settings.py
+db.sqlite3
+/staticfiles/
+/media/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Node
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Build artifacts
+frontend/build/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride

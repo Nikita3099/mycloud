@@ -53,8 +53,14 @@ const usersSlice = createSlice({
     items: [],
     status: "idle",
     error: null,
+    updating: false,
+    deleting: false,
   },
-  reducers: {},
+  reducers: {
+    clearError: (state) => {
+      state.error = null;
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchUsers.pending, (state) => {
@@ -68,9 +74,33 @@ const usersSlice = createSlice({
       .addCase(fetchUsers.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.payload?.error || "Failed to fetch users";
+      })
+      .addCase(updateUserAdmin.pending, (state) => {
+        state.updating = true;
+        state.error = null;
+      })
+      .addCase(updateUserAdmin.fulfilled, (state) => {
+        state.updating = false;
+      })
+      .addCase(updateUserAdmin.rejected, (state, action) => {
+        state.updating = false;
+        state.error = action.payload?.error || "Failed to update user";
+      })
+      .addCase(deleteUser.pending, (state) => {
+        state.deleting = true;
+        state.error = null;
+      })
+      .addCase(deleteUser.fulfilled, (state) => {
+        state.deleting = false;
+      })
+      .addCase(deleteUser.rejected, (state, action) => {
+        state.deleting = false;
+        state.error = action.payload?.error || "Failed to delete user";
       });
   },
 });
+
+export const { clearError } = usersSlice.actions;
 
 export default usersSlice.reducer;
 
